@@ -41,3 +41,9 @@ variable "vcn_cidr" {
   type = string
   default = "10.0.0.0/16"
 }
+
+# a valid version from https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-arm64/Packages
+variable "kubernetes_version" {
+  type = string
+  default = null
+}
