@@ -15,12 +15,7 @@ data "external" "kubeconfig" {
     <<-EOT
       set -e
       cat >/dev/null
-      echo '{"base64": "'$(
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              -l k8s -i ${local_file.ssh_private_key.filename} \
-              ${oci_core_instance._[1].public_ip} \
-              sudo cat /etc/kubernetes/admin.conf | base64 -w0
-            )'"}'
+      echo '{"base64": "'$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l k8s -i ${local_file.ssh_private_key.filename} ${oci_core_instance._[1].public_ip} sudo base64 -w0 /etc/kubernetes/admin.conf)'"}'
     EOT
   ]
 }
