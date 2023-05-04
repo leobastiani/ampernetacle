@@ -12,7 +12,6 @@ resource "oci_core_default_route_table" "_" {
   manage_default_resource_id = oci_core_vcn._.default_route_table_id
   route_rules {
     destination       = "0.0.0.0/0"
-    destination_type  = "CIDR_BLOCK"
     network_entity_id = oci_core_internet_gateway._.id
   }
 }
@@ -20,8 +19,18 @@ resource "oci_core_default_route_table" "_" {
 resource "oci_core_default_security_list" "_" {
   manage_default_resource_id = oci_core_vcn._.default_security_list_id
   ingress_security_rules {
-    protocol = "all"
-    source   = "0.0.0.0/0"
+    description = "Allow all access from VCN"
+    protocol    = "all"
+    source      = "10.0.0.0/16"
+  }
+  ingress_security_rules {
+    description = "Allow SSH from anywhere"
+    protocol    = "6" # TCP
+    source      = "0.0.0.0/0"
+    tcp_options {
+      max = 22
+      min = 22
+    }
   }
   egress_security_rules {
     protocol    = "all"
