@@ -1,3 +1,7 @@
+data "http" "myip" {
+  url = "http://ipv4.icanhazip.com"
+}
+
 resource "oci_core_vcn" "_" {
   compartment_id = local.compartment_id
   cidr_block     = var.vcn_cidr
@@ -24,12 +28,21 @@ resource "oci_core_default_security_list" "_" {
     source      = oci_core_vcn._.cidr_block
   }
   ingress_security_rules {
-    description = "Allow SSH from anywhere"
+    description = "Allow SSH from my IP"
     protocol    = "6" # TCP
-    source      = "0.0.0.0/0"
+    source      = "${chomp(data.http.myip.body)}/32"
     tcp_options {
       max = 22
       min = 22
+    }
+  }
+  ingress_security_rules {
+    description = "Allow k8s apiserver from my IP"
+    protocol    = "6" # TCP
+    source      = "${chomp(data.http.myip.body)}/32"
+    tcp_options {
+      max = 6443
+      min = 6443
     }
   }
   egress_security_rules {
