@@ -1,6 +1,6 @@
 resource "oci_core_vcn" "_" {
   compartment_id = local.compartment_id
-  cidr_block     = "10.0.0.0/16"
+  cidr_block     = var.vcn_cidr
 }
 
 resource "oci_core_internet_gateway" "_" {
@@ -21,7 +21,7 @@ resource "oci_core_default_security_list" "_" {
   ingress_security_rules {
     description = "Allow all access from VCN"
     protocol    = "all"
-    source      = "10.0.0.0/16"
+    source      = oci_core_vcn._.cidr_block
   }
   ingress_security_rules {
     description = "Allow SSH from anywhere"
@@ -40,7 +40,7 @@ resource "oci_core_default_security_list" "_" {
 
 resource "oci_core_subnet" "_" {
   compartment_id    = local.compartment_id
-  cidr_block        = "10.0.0.0/24"
+  cidr_block        = cidrsubnet(oci_core_vcn._.cidr_block, 8, 0)
   vcn_id            = oci_core_vcn._.id
   route_table_id    = oci_core_default_route_table._.id
   security_list_ids = [oci_core_default_security_list._.id]

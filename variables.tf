@@ -36,3 +36,8 @@ variable "memory_in_gbs_per_node" {
   type    = number
   default = 6
 }
+
+variable "vcn_cidr" {
+  type = string
+  default = "10.0.0.0/16"
+}
