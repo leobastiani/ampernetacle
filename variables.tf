@@ -38,8 +38,18 @@ variable "memory_in_gbs_per_node" {
 }
 
 variable "vcn_cidr" {
-  type = string
+  type    = string
   default = "10.0.0.0/16"
+}
+
+variable "pod_network_cidr" {
+  type    = string
+  default = "10.244.0.0/16"
+}
+
+variable "service_network_cidr" {
+  type    = string
+  default = "10.96.0.0/12"
 }
 
 # a valid version from https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-arm64/Packages

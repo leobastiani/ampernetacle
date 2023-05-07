@@ -7,7 +7,7 @@ data "external" "kubeconfig" {
   program = local.is_windows ? [
     "powershell",
     <<EOT
-    write-host "{`"base64`": `"$(ssh -o StrictHostKeyChecking=no -l k8s -i ${local_file.ssh_private_key.filename} ${oci_core_instance._[1].public_ip} sudo base64 -w0 /etc/kubernetes/admin.conf)`"}"
+    write-host "{`"base64`": `"$(ssh -o StrictHostKeyChecking=no -l ubuntu -i ${local_file.ssh_private_key.filename} ${oci_core_instance._[1].public_ip} sudo base64 -w0 /etc/kubernetes/admin.conf)`"}"
     EOT
     ] : [
     "sh",
@@ -15,7 +15,7 @@ data "external" "kubeconfig" {
     <<-EOT
       set -e
       cat >/dev/null
-      echo '{"base64": "'$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l k8s -i ${local_file.ssh_private_key.filename} ${oci_core_instance._[1].public_ip} sudo base64 -w0 /etc/kubernetes/admin.conf)'"}'
+      echo '{"base64": "'$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l ubuntu -i ${local_file.ssh_private_key.filename} ${oci_core_instance._[1].public_ip} sudo base64 -w0 /etc/kubernetes/admin.conf)'"}'
     EOT
   ]
 }
