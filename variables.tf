@@ -52,6 +52,17 @@ variable "service_network_cidr" {
   default = "10.96.0.0/12"
 }
 
+variable "cni_flannel_yaml" {
+  type    = string
+  default = "https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"
+}
+
+variable "cni_weave_yaml" {
+  type    = string
+  default = null
+  # https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s-1.11.yaml
+}
+
 # a valid version from https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-arm64/Packages
 variable "kubernetes_version" {
   type = string

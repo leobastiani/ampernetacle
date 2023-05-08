@@ -120,10 +120,39 @@ kubeadm init --pod-network-cidr="${var.pod_network_cidr}" --service-cidr="${var.
 mkdir -p /home/ubuntu/.kube
 cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
 chown ubuntu:ubuntu /home/ubuntu/.kube/config
+EOF
+    }
+  }
+
+  dynamic "part" {
+    for_each = each.value.role == "controlplane" && var.cni_flannel_yaml != null ? ["yes"] : []
+    content {
+      filename     = "5-setup-flannel.sh"
+      content_type = "text/x-shellscript"
+      content      = <<-EOF
+#!/bin/sh
 export KUBECONFIG=/etc/kubernetes/admin.conf
-curl -sLo /tmp/kube-flannel.yml https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+curl -sLo /tmp/kube-flannel.yml ${var.cni_flannel_yaml}
 sed -i s_10.244.0.0/16_${var.pod_network_cidr}_ /tmp/kube-flannel.yml
 kubectl apply -f /tmp/kube-flannel.yml
+sleep 20
+iptables -F
+iptables -F -tnat
+EOF
+    }
+  }
+
+  dynamic "part" {
+    for_each = each.value.role == "controlplane" && var.cni_weave_yaml != null && var.cni_flannel_yaml == null ? ["yes"] : []
+    content {
+      filename     = "5-setup-weave.sh"
+      content_type = "text/x-shellscript"
+      content      = <<-EOF
+#!/bin/sh
+export KUBECONFIG=/etc/kubernetes/admin.conf
+curl -sLo /tmp/kube-weave.yml ${var.cni_weave_yaml}
+sed -i "s@name: INIT_CONTAINER@name: IPALLOC_RANGE\n                  value: ${var.pod_network_cidr}\n                - name: INIT_CONTAINER@" /tmp/kube-weave.yml
+kubectl apply -f /tmp/kube-weave.yml
 sleep 20
 iptables -F
 iptables -F -tnat
