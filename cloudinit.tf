@@ -56,6 +56,8 @@ data "cloudinit_config" "_" {
       EOF
   }
 
+  # TODO don't really need this as kubeadm-init scripts are flushing iptables. Should review and find out which rule breaks networking, instead of flushing ...
+  # maybe it's - -A FORWARD -j REJECT --reject-with icmp-host-prohibited ???
   # By default, all inbound traffic is blocked (except SSH) so we need to change that.
   part {
     filename     = "1-allow-inbound-traffic.sh"
@@ -125,14 +127,14 @@ EOF
   }
 
   dynamic "part" {
-    for_each = each.value.role == "controlplane" && var.cni_flannel_yaml != null ? ["yes"] : []
+    for_each = each.value.role == "controlplane" && var.cni_plugin == "flannel" ? ["yes"] : []
     content {
       filename     = "5-setup-flannel.sh"
       content_type = "text/x-shellscript"
       content      = <<-EOF
 #!/bin/sh
 export KUBECONFIG=/etc/kubernetes/admin.conf
-curl -sLo /tmp/kube-flannel.yml ${var.cni_flannel_yaml}
+curl -sLo /tmp/kube-flannel.yml https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 sed -i s_10.244.0.0/16_${var.pod_network_cidr}_ /tmp/kube-flannel.yml
 kubectl apply -f /tmp/kube-flannel.yml
 sleep 20
@@ -143,14 +145,14 @@ EOF
   }
 
   dynamic "part" {
-    for_each = each.value.role == "controlplane" && var.cni_weave_yaml != null && var.cni_flannel_yaml == null ? ["yes"] : []
+    for_each = each.value.role == "controlplane" && var.cni_plugin == "weave" ? ["yes"] : []
     content {
       filename     = "5-setup-weave.sh"
       content_type = "text/x-shellscript"
       content      = <<-EOF
 #!/bin/sh
 export KUBECONFIG=/etc/kubernetes/admin.conf
-curl -sLo /tmp/kube-weave.yml ${var.cni_weave_yaml}
+curl -sLo /tmp/kube-weave.yml https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s-1.11.yaml
 sed -i "s@name: INIT_CONTAINER@name: IPALLOC_RANGE\n                  value: ${var.pod_network_cidr}\n                - name: INIT_CONTAINER@" /tmp/kube-weave.yml
 kubectl apply -f /tmp/kube-weave.yml
 sleep 20
