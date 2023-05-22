@@ -22,7 +22,7 @@ data "http" "crio2_repo_key" {
 }
 
 data "http" "kubernetes_repo_key" {
-  url = "https://packages.cloud.google.com/apt/doc/apt-key.gpg.asc"
+  url = "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
 }
 
 data "cloudinit_config" "_" {
