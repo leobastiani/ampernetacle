@@ -47,16 +47,17 @@ resource "oci_core_instance" "_" {
     private_ip = each.value.ip_address
   }
   metadata = {
-    ssh_authorized_keys = join("\n", local.authorized_keys)
+    ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
     user_data           = data.cloudinit_config._[each.key].rendered
   }
   connection {
     host        = self.public_ip
     user        = "ubuntu"
-    private_key = tls_private_key.ssh.private_key_pem
+    private_key = file("~/.ssh/id_rsa")
   }
   provisioner "remote-exec" {
     inline = [
+      "sudo iptables -I INPUT 1 -j ACCEPT",
       "tail -f /var/log/cloud-init-output.log &",
       "cloud-init status --wait >/dev/null",
     ]
