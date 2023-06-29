@@ -17,9 +17,9 @@ data "cloudinit_config" "_" {
       package_update: true
       package_upgrade: true
       packages:
-      ${yamlencode(local.packages)}
+        ${yamlencode(local.packages)}
       users:
-      - default
+        - default
       EOF
   }
 }
