@@ -12,7 +12,6 @@ locals {
     i => {
       node_name  = format("node%d", i)
       ip_address = cidrhost(oci_core_subnet._.cidr_block, 10 + i)
-      role       = i == 1 ? "controlplane" : "worker"
     }
   }
 }
@@ -25,7 +24,7 @@ data "oci_core_images" "_" {
   compartment_id           = local.compartment_id
   shape                    = var.shape
   operating_system         = "Canonical Ubuntu"
-  operating_system_version = "22.04"
+  operating_system_version = ""
 }
 
 resource "oci_core_instance" "_" {
@@ -48,18 +47,5 @@ resource "oci_core_instance" "_" {
   }
   metadata = {
     ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
-    user_data           = data.cloudinit_config._[each.key].rendered
-  }
-  connection {
-    host        = self.public_ip
-    user        = "ubuntu"
-    private_key = file("~/.ssh/id_rsa")
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo iptables -I INPUT 1 -j ACCEPT",
-      "tail -f /var/log/cloud-init-output.log &",
-      "cloud-init status --wait >/dev/null",
-    ]
   }
 }
