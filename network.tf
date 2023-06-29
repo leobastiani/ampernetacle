@@ -23,27 +23,8 @@ resource "oci_core_default_route_table" "_" {
 resource "oci_core_default_security_list" "_" {
   manage_default_resource_id = oci_core_vcn._.default_security_list_id
   ingress_security_rules {
-    description = "Allow all access from VCN"
-    protocol    = "all"
-    source      = oci_core_vcn._.cidr_block
-  }
-  ingress_security_rules {
-    description = "Allow SSH from my IP"
-    protocol    = "6" # TCP
-    source      = "${chomp(data.http.myip.response_body)}/32"
-    tcp_options {
-      max = 22
-      min = 22
-    }
-  }
-  ingress_security_rules {
-    description = "Allow k8s apiserver from my IP"
-    protocol    = "6" # TCP
-    source      = "${chomp(data.http.myip.response_body)}/32"
-    tcp_options {
-      max = 6443
-      min = 6443
-    }
+    protocol = "all"
+    source   = "0.0.0.0/0"
   }
   egress_security_rules {
     protocol    = "all"
