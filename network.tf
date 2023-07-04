@@ -1,7 +1,3 @@
-data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
-}
-
 resource "oci_core_vcn" "_" {
   compartment_id = local.compartment_id
   cidr_block     = var.vcn_cidr

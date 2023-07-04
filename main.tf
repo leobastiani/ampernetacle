@@ -8,10 +8,10 @@ locals {
   compartment_id = oci_identity_compartment._.id
 
   nodes = {
-    for i in range(1, 1 + var.how_many_nodes) :
-    i => {
-      node_name  = format("node%d", i)
+    for i in range(var.how_many_nodes) : i => {
+      node_name  = format("node%d", i + 1)
       ip_address = cidrhost(oci_core_subnet._.cidr_block, 10 + i)
+      role       = i == 0 ? "control-plane" : "worker"
     }
   }
 }
