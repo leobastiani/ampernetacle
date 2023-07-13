@@ -38,7 +38,7 @@ fi
 EOF
 )"
 
-worker_count=$(($(terraform output -raw how_many_nodes) - 1))
+worker_count=$(($(terraform output -raw nodes_number) - 1))
 for ((i = 0; i < $worker_count; i++)); do
   ssh -J "ubuntu@$(terraform output -raw ip)" "ubuntu@10.0.0.$(($i + 11))" "$install_k3s_worker" &
 done

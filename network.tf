@@ -1,6 +1,6 @@
 resource "oci_core_vcn" "_" {
   compartment_id = local.compartment_id
-  cidr_block     = var.vcn_cidr
+  cidr_block     = local.vcn_cidr
 }
 
 resource "oci_core_internet_gateway" "_" {
