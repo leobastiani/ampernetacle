@@ -33,10 +33,13 @@ resource "oci_core_instance" "_" {
   availability_domain = data.oci_identity_availability_domains._.availability_domains[local.availability_domain].name
   compartment_id      = local.compartment_id
   shape               = local.shape
-  # shape_config {
-  #   memory_in_gbs = local.memory_in_gbs
-  #   ocpus         = local.ocpus
-  # }
+  dynamic "shape_config" {
+    for_each = local.ocpus != null ? [1] : []
+    content {
+      memory_in_gbs = local.memory_in_gbs
+      ocpus         = local.ocpus
+    }
+  }
   source_details {
     source_id   = data.oci_core_images._.images[0].id
     source_type = "image"
