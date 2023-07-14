@@ -24,7 +24,7 @@ cmd_workers() {
   wait
 }
 
-cmd_controlplane() {
+cmd_control_plane() {
   ssh "ubuntu@$(get_ip 0)" "$@"
 }
 
@@ -32,9 +32,6 @@ cmd_controlplane() {
 for ((i = 0; i < nodes_number; i++)); do
   ssh "ubuntu@$(get_ip $i)" "echo"
 done
-
-# apt-update
-cmd_nodes "sudo apt-get update"
 
 patch_iptables="$(
   cat <<EOF
@@ -50,6 +47,7 @@ install_docker="$(
   cat <<EOF
 set -x
 if [ ! "\$(command -v docker)" ]; then
+  sudo apt-get update
   sudo apt-get install apt-transport-https ca-certificates curl software-properties-common iptables -y
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository --yes "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
@@ -60,7 +58,7 @@ EOF
 )"
 cmd_nodes "$install_docker"
 
-setup_controlplane="$(
+setup_control_plane="$(
   cat <<EOF
 set -x
 if [ \$(docker info --format '{{.Swarm.LocalNodeState}}') != "active" ]; then
@@ -68,9 +66,9 @@ if [ \$(docker info --format '{{.Swarm.LocalNodeState}}') != "active" ]; then
 fi
 EOF
 )"
-cmd_controlplane "$setup_controlplane"
+cmd_control_plane "$setup_control_plane"
 
-token=$(cmd_controlplane "docker swarm join-token -q worker")
+token=$(cmd_control_plane "docker swarm join-token -q worker")
 
 setup_workers="$(
   cat <<EOF
