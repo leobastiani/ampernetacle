@@ -35,3 +35,15 @@ resource "oci_core_subnet" "_" {
   route_table_id    = oci_core_default_route_table._.id
   security_list_ids = [oci_core_default_security_list._.id]
 }
+
+data "oci_core_private_ips" "_" {
+  count      = local.nodes_number > 0 ? 1 : 0
+  ip_address = oci_core_instance._[0].private_ip
+  subnet_id  = oci_core_subnet._.id
+}
+
+resource "oci_core_public_ip" "_" {
+  compartment_id = local.compartment_id
+  lifetime       = "RESERVED"
+  private_ip_id  = local.nodes_number > 0 ? data.oci_core_private_ips._[0].private_ips[0]["id"] : ""
+}

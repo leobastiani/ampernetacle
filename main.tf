@@ -45,8 +45,9 @@ resource "oci_core_instance" "_" {
     source_type = "image"
   }
   create_vnic_details {
-    subnet_id  = oci_core_subnet._.id
-    private_ip = each.value.ip_address
+    subnet_id        = oci_core_subnet._.id
+    private_ip       = each.value.ip_address
+    assign_public_ip = each.value.role == "control-plane" ? false : true
   }
   metadata = {
     ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
