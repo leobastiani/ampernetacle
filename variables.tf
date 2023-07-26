@@ -14,7 +14,7 @@ variable "nodes_number" {
 }
 
 locals {
-  name                = "kubernetes"
+  name                = var.arch == "x86" ? "docker-swarm" : "kubernetes"
   vcn_cidr            = "10.0.0.0/16"
   availability_domain = 0
 }
