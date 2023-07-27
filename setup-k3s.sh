@@ -12,25 +12,25 @@ get_ip() {
 nodes_number=$(terraform output -raw nodes_number)
 cmd_nodes() {
   for ((i = 0; i < nodes_number; i++)); do
-    ssh "ubuntu@$(get_ip "$i")" "$@" &
+    ./ssh.sh "$i" "$@" &
   done
   wait
 }
 
 cmd_workers() {
   for ((i = 1; i <= nodes_number; i++)); do
-    ssh "ubuntu@$(get_ip $i)" "$@" &
+    ./ssh.sh "$i" "$@" &
   done
   wait
 }
 
 cmd_control_plane() {
-  ssh "ubuntu@$(get_ip 0)" "$@"
+  ./ssh.sh 0 "$@"
 }
 
 # ack
 for ((i = 0; i < nodes_number; i++)); do
-  ssh "ubuntu@$(get_ip $i)" "true"
+  ./ssh.sh "$i" "true"
 done
 
 patch_iptables="$(
