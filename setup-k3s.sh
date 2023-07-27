@@ -30,7 +30,7 @@ cmd_control_plane() {
 
 # ack
 for ((i = 0; i < nodes_number; i++)); do
-  ssh "ubuntu@$(get_ip $i)" "echo"
+  ssh "ubuntu@$(get_ip $i)" "true"
 done
 
 patch_iptables="$(
@@ -80,9 +80,11 @@ kubectl apply -f lets-encrypt.yaml
 if ! kubectl get secrets/docker-registry; then
   echo "docker hub password: "
   read -rs password
-  kubectl create secret docker-registry docker-registry \
-    --docker-server=docker.io \
-    --docker-username=leobastiani \
-    "--docker-password=${password}" \
-    --docker-email=leogbastiani@gmail.com
+  if [ -n "$password" ]; then
+    kubectl create secret docker-registry docker-registry \
+      --docker-server=docker.io \
+      --docker-username=leobastiani \
+      "--docker-password=${password}" \
+      --docker-email=leogbastiani@gmail.com
+  fi
 fi
