@@ -41,8 +41,9 @@ resource "oci_core_instance" "_" {
     }
   }
   source_details {
-    source_id   = data.oci_core_images._.images[0].id
-    source_type = "image"
+    source_id               = data.oci_core_images._.images[0].id
+    source_type             = "image"
+    boot_volume_size_in_gbs = var.boot_volume_size_in_gbs != null ? var.boot_volume_size_in_gbs : 50
   }
   create_vnic_details {
     subnet_id        = oci_core_subnet._.id
